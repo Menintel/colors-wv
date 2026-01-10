@@ -1,0 +1,137 @@
+<?xml version="1.0" encoding="utf-8"?>
+<Page
+    x:Class="colors.Views.ProjectsPage"
+    xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+    xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+    xmlns:local="using:colors.Views"
+    xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
+    xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
+    mc:Ignorable="d"
+    Background="{ThemeResource ApplicationPageBackgroundThemeBrush}">
+    
+
+    <Grid>
+        <Grid.ColumnDefinitions>
+            <ColumnDefinition Width="300"/>
+            <ColumnDefinition Width="*"/>
+        </Grid.ColumnDefinitions>
+
+        <!-- Left Sidebar: Projects Tree -->
+        <Grid Grid.Column="0" BorderBrush="{ThemeResource CardStrokeColorDefaultBrush}" BorderThickness="0,0,1,0">
+            <Grid.RowDefinitions>
+                <RowDefinition Height="Auto"/>
+                <RowDefinition Height="*"/>
+            </Grid.RowDefinitions>
+
+            <!-- Toolbar -->
+            <StackPanel Grid.Row="0" Padding="16" Spacing="8">
+                <TextBlock Text="Projects" FontSize="20" FontWeight="SemiBold"/>
+                <Button 
+                    x:Name="NewProjectButton"
+                    Content="+ New Project" 
+                    Click="NewProjectButton_Click"
+                    HorizontalAlignment="Stretch"/>
+            </StackPanel>
+
+            <!-- Projects List -->
+            <ScrollViewer Grid.Row="1">
+                <StackPanel x:Name="ProjectsPanel" Padding="8" Spacing="8">
+                    <!-- Projects will be added here dynamically -->
+                </StackPanel>
+            </ScrollViewer>
+        </Grid>
+
+        <Grid Grid.Column="1" Padding="24">
+            <Grid.RowDefinitions>
+                <RowDefinition Height="Auto"/>
+                <RowDefinition Height="*"/>
+            </Grid.RowDefinitions>
+
+            <!-- Palette Header -->
+            <StackPanel x:Name="PaletteHeader" Grid.Row="0" Spacing="16" Visibility="Collapsed">
+                <Grid>
+                    <Grid.ColumnDefinitions>
+                        <ColumnDefinition Width="*"/>
+                        <ColumnDefinition Width="Auto"/>
+                    </Grid.ColumnDefinitions>
+
+                    <StackPanel>
+                        <TextBlock x:Name="PaletteName" FontSize="24" FontWeight="SemiBold"/>
+                        <TextBlock x:Name="PaletteInfo" Foreground="{ThemeResource TextFillColorSecondaryBrush}" Margin="0,4,0,0"/>
+                    </StackPanel>
+
+                    <StackPanel Grid.Column="1" Orientation="Horizontal" Spacing="8">
+                        <Button Content="Export JSON" Click="ExportButton_Click"/>
+                        <Button Content="Delete Palette" Click="DeletePaletteButton_Click"/>
+                    </StackPanel>
+                </Grid>
+            </StackPanel>
+
+            <!-- Colors Grid -->
+            <ScrollViewer Grid.Row="1" Margin="0,16,0,0">
+                <StackPanel x:Name="ColorsContainer" Spacing="16">
+                    <!-- Reference Image -->
+                    <Image 
+                        x:Name="ReferenceImage" 
+                        MaxHeight="300" 
+                        HorizontalAlignment="Left"
+                        Visibility="Collapsed"/>
+
+                    <!-- Colors -->
+                    <ItemsControl x:Name="ColorsList">
+                        <ItemsControl.ItemTemplate>
+                            <DataTemplate>
+                                <Grid Margin="0,0,0,12" Padding="12" Background="{ThemeResource CardBackgroundFillColorDefaultBrush}" CornerRadius="8">
+                                    <Grid.ColumnDefinitions>
+                                        <ColumnDefinition Width="80"/>
+                                        <ColumnDefinition Width="*"/>
+                                    </Grid.ColumnDefinitions>
+
+                                    <!-- Color Swatch -->
+                                    <Border 
+                                        Grid.Column="0"
+                                        Width="64" 
+                                        Height="64" 
+                                        CornerRadius="8"
+                                        Background="{Binding HexColor}"/>
+
+                                    <!-- Color Info -->
+                                    <StackPanel Grid.Column="1" Margin="16,0,0,0" VerticalAlignment="Center" Spacing="4">
+                                        <TextBlock Text="{Binding HexColor}" FontWeight="SemiBold" FontSize="16"/>
+                                        <TextBlock Foreground="{ThemeResource TextFillColorSecondaryBrush}">
+                                            <Run Text="RGB("/>
+                                            <Run Text="{Binding R}"/><Run Text=", "/>
+                                            <Run Text="{Binding G}"/><Run Text=", "/>
+                                            <Run Text="{Binding B}"/><Run Text=")"/>
+                                        </TextBlock>
+                                        <TextBox 
+                                            Text="{Binding Description, Mode=TwoWay}" 
+                                            PlaceholderText="Add description (e.g., 'Primary button')"
+                                            Width="300"
+                                            HorizontalAlignment="Left"
+                                            Margin="0,4,0,0"/>
+                                    </StackPanel>
+                                </Grid>
+                            </DataTemplate>
+                        </ItemsControl.ItemTemplate>
+                    </ItemsControl>
+                </StackPanel>
+            </ScrollViewer>
+
+            <!-- Empty State -->
+            <StackPanel 
+                x:Name="EmptyState"
+                Grid.Row="1" 
+                VerticalAlignment="Center" 
+                HorizontalAlignment="Center">
+                <TextBlock 
+                    Text="Select a palette to view colors" 
+                    FontSize="18" 
+                    Foreground="{ThemeResource TextFillColorSecondaryBrush}"
+                    TextAlignment="Center"/>
+            </StackPanel>
+
+        </Grid>
+
+    </Grid>
+</Page>
