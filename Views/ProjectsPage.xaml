@@ -68,55 +68,58 @@
             </StackPanel>
 
             <!-- Colors Grid -->
-            <ScrollViewer Grid.Row="1" Margin="0,16,0,0">
-                <StackPanel x:Name="ColorsContainer" Spacing="16">
-                    <!-- Reference Image -->
-                    <Image 
-                        x:Name="ReferenceImage" 
-                        MaxHeight="300" 
-                        HorizontalAlignment="Left"
-                        Visibility="Collapsed"/>
+                <ListView x:Name="ColorsList" Margin="0,16,0,0" SelectionMode="None">
+                    <ListView.Header>
+                           <Image 
+                            x:Name="ReferenceImage" 
+                            MaxHeight="300" 
+                            HorizontalAlignment="Left"
+                            Visibility="Collapsed"
+                            Margin="0,0,0,16"/>
+                    </ListView.Header>
+                    <ListView.ItemTemplate>
+                        <DataTemplate>
+                            <Grid Margin="0,0,0,12" Padding="12" Background="{ThemeResource CardBackgroundFillColorDefaultBrush}" CornerRadius="8">
+                                <Grid.ColumnDefinitions>
+                                    <ColumnDefinition Width="80"/>
+                                    <ColumnDefinition Width="*"/>
+                                </Grid.ColumnDefinitions>
 
-                    <!-- Colors -->
-                    <ItemsControl x:Name="ColorsList">
-                        <ItemsControl.ItemTemplate>
-                            <DataTemplate>
-                                <Grid Margin="0,0,0,12" Padding="12" Background="{ThemeResource CardBackgroundFillColorDefaultBrush}" CornerRadius="8">
-                                    <Grid.ColumnDefinitions>
-                                        <ColumnDefinition Width="80"/>
-                                        <ColumnDefinition Width="*"/>
-                                    </Grid.ColumnDefinitions>
+                                <!-- Color Swatch -->
+                                <Border 
+                                    Grid.Column="0"
+                                    Width="64" 
+                                    Height="64" 
+                                    CornerRadius="8"
+                                    Background="{Binding HexColor}"/>
 
-                                    <!-- Color Swatch -->
-                                    <Border 
-                                        Grid.Column="0"
-                                        Width="64" 
-                                        Height="64" 
-                                        CornerRadius="8"
-                                        Background="{Binding HexColor}"/>
-
-                                    <!-- Color Info -->
-                                    <StackPanel Grid.Column="1" Margin="16,0,0,0" VerticalAlignment="Center" Spacing="4">
-                                        <TextBlock Text="{Binding HexColor}" FontWeight="SemiBold" FontSize="16"/>
-                                        <TextBlock Foreground="{ThemeResource TextFillColorSecondaryBrush}">
-                                            <Run Text="RGB("/>
-                                            <Run Text="{Binding R}"/><Run Text=", "/>
-                                            <Run Text="{Binding G}"/><Run Text=", "/>
-                                            <Run Text="{Binding B}"/><Run Text=")"/>
-                                        </TextBlock>
-                                        <TextBox 
-                                            Text="{Binding Description, Mode=TwoWay}" 
-                                            PlaceholderText="Add description (e.g., 'Primary button')"
-                                            Width="300"
-                                            HorizontalAlignment="Left"
-                                            Margin="0,4,0,0"/>
-                                    </StackPanel>
-                                </Grid>
-                            </DataTemplate>
-                        </ItemsControl.ItemTemplate>
-                    </ItemsControl>
-                </StackPanel>
-            </ScrollViewer>
+                                <!-- Color Info -->
+                                <StackPanel Grid.Column="1" Margin="16,0,0,0" VerticalAlignment="Center" Spacing="4">
+                                    <TextBlock Text="{Binding HexColor}" FontWeight="SemiBold" FontSize="16"/>
+                                    <TextBlock Foreground="{ThemeResource TextFillColorSecondaryBrush}">
+                                        <Run Text="RGB("/>
+                                        <Run Text="{Binding R}"/><Run Text=", "/>
+                                        <Run Text="{Binding G}"/><Run Text=", "/>
+                                        <Run Text="{Binding B}"/><Run Text=")"/>
+                                    </TextBlock>
+                                    <TextBox 
+                                        Text="{Binding Description, Mode=TwoWay}" 
+                                        PlaceholderText="Add description (e.g., 'Primary button')"
+                                        Width="300"
+                                        HorizontalAlignment="Left"
+                                        Margin="0,4,0,0"/>
+                                </StackPanel>
+                            </Grid>
+                        </DataTemplate>
+                    </ListView.ItemTemplate>
+                    <ListView.ItemContainerStyle>
+                        <Style TargetType="ListViewItem">
+                            <Setter Property="HorizontalContentAlignment" Value="Stretch"/>
+                            <Setter Property="Padding" Value="0"/>
+                            <Setter Property="Margin" Value="0,0,0,4"/>
+                        </Style>
+                    </ListView.ItemContainerStyle>
+                </ListView>
 
             <!-- Empty State -->
             <StackPanel 

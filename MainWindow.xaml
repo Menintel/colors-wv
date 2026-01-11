@@ -20,15 +20,17 @@
 
         <!-- Title Bar -->
 
-        <Grid Grid.Row="0" Background="{ThemeResource  CardBackgroundFillColorDefaultBrush}" >
+        <Grid x:Name="AppTitleBar" Grid.Row="0" Background="{ThemeResource  CardBackgroundFillColorDefaultBrush}" >
             <Grid.ColumnDefinitions>
                 <ColumnDefinition Width="*"/>
                 <ColumnDefinition Width="Auto"/>
+                <ColumnDefinition Width="188"/> <!-- Space for Caption Buttons -->
             </Grid.ColumnDefinitions>
 
-            <StackPanel Orientation="Horizontal" Margin="16,0">
+            <StackPanel Orientation="Horizontal" Margin="16,0" Spacing="8">
+                <FontIcon Glyph="&#xE790;"/>
                 <TextBlock
-                Text="🎨 Color Picker"
+                Text="Color Picker"
                 VerticalAlignment="Center"
                 FontSize="16"
                 FontWeight="SemiBold"/>
@@ -43,19 +45,34 @@
                 
                 <Button
                     x:Name="ProjectsButton"
-                    Content="Projects"
                     Click="ProjectsButton_Click"
-                    Style="{StaticResource AccentButtonStyle}"/>
+                    Style="{StaticResource AccentButtonStyle}"
+                    ToolTipService.ToolTip="Projects">
+                    <StackPanel Orientation="Horizontal" Spacing="8">
+                        <FontIcon Glyph="&#xE82D;"/>
+                        <TextBlock Text="Projects"/>
+                    </StackPanel>
+                </Button>
                 
                 <Button
                     x:Name="ScreenPickerButton"
-                    Content="Screen Picker"
-                    Click="ScreenPickerButton_Click"/>
+                    Click="ScreenPickerButton_Click"
+                    ToolTipService.ToolTip="Screen Picker">
+                    <StackPanel Orientation="Horizontal" Spacing="8">
+                        <FontIcon Glyph="&#xEF3C;"/>
+                        <TextBlock Text="Pick"/>
+                    </StackPanel>
+                </Button>
                 
                 <Button
                     x:Name="ImagePaletteButton"
-                    Content="New from Image"
-                    Click="ImagePaletteButton_Click"/>
+                    Click="ImagePaletteButton_Click"
+                    ToolTipService.ToolTip="New from Image">
+                    <StackPanel Orientation="Horizontal" Spacing="8">
+                        <FontIcon Glyph="&#xE8B9;"/>
+                        <TextBlock Text="Image"/>
+                    </StackPanel>
+                </Button>
             </StackPanel>
         </Grid>
 

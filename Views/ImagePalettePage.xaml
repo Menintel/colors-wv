@@ -16,14 +16,214 @@
         </Grid.RowDefinitions>
 
         <!-- Header -->
-        <StackPanel Grid.Row="0" Spacing="16">
-            <TextBlock Text="Create Palette from Image" FontSize="24" FontWeight="SemiBold"/>
-            <Button x:Name="UploadImageButton" Content="Upload Image" Click="UploadImageButton_Click"/>
-        </StackPanel>
+        <Grid Grid.Row="0" Padding="24" Background="{ThemeResource CardBackgroundFillColorDefaultBrush}">
+            <Grid.ColumnDefinitions>
+                <ColumnDefinition Width="*"/>
+                <ColumnDefinition Width="Auto"/>
+            </Grid.ColumnDefinitions>
 
-        <!-- Content -->
-        <StackPanel Grid.Row="1" Margin="0,24,0,0" Spacing="16">
-            <TextBlock x:Name="StatusText" Text="Upload an image to extract colors" Foreground="{ThemeResource TextFillColorSecondaryBrush}"/>
-        </StackPanel>
+            <StackPanel>
+                <TextBlock Text="Create Palette from Image" FontSize="24" FontWeight="SemiBold"/>
+                <TextBlock x:Name="ProjectNameText" Foreground="{ThemeResource TextFillColorSecondaryBrush}" Margin="0,4,0,0"/>
+            </StackPanel>
+
+            <Button 
+                Grid.Column="1"
+                x:Name="BackButton"
+                Content="← Back to Projects"
+                Click="BackButton_Click"/>
+        </Grid>
+
+        <!-- Content Area -->
+        <ScrollViewer Grid.Row="1">
+            <StackPanel Padding="24" Spacing="24" MaxWidth="1200">
+
+                <!-- Step 1: Upload Image -->
+                <StackPanel x:Name="Step1_Upload" Spacing="16">
+                    <TextBlock Text="Step 1: Upload Image" FontSize="20" FontWeight="SemiBold"/>
+                    
+                    <StackPanel 
+                        x:Name="UploadArea"
+                        Background="{ThemeResource CardBackgroundFillColorDefaultBrush}" 
+                        Padding="32" 
+                        CornerRadius="8"
+                        BorderBrush="{ThemeResource CardStrokeColorDefaultBrush}"
+                        BorderThickness="2">
+                        
+                        <StackPanel HorizontalAlignment="Center" Spacing="16">
+                            <TextBlock 
+                                Text="📁" 
+                                FontSize="48" 
+                                HorizontalAlignment="Center"/>
+                            <TextBlock 
+                                Text="Choose an image to extract colors from" 
+                                FontSize="16"
+                                HorizontalAlignment="Center"/>
+                            <Button 
+                                x:Name="UploadImageButton"
+                                Content="Browse Image" 
+                                Click="UploadImageButton_Click"
+                                Style="{StaticResource AccentButtonStyle}"/>
+                        </StackPanel>
+                    </StackPanel>
+
+                    <!-- Selected Image Preview -->
+                    <Grid x:Name="ImagePreviewContainer" Visibility="Collapsed">
+                        <Grid.ColumnDefinitions>
+                            <ColumnDefinition Width="Auto"/>
+                            <ColumnDefinition Width="*"/>
+                        </Grid.ColumnDefinitions>
+
+                        <Image 
+                            x:Name="SelectedImage"
+                            Grid.Column="0"
+                            MaxWidth="400"
+                            MaxHeight="300"
+                            Stretch="Uniform"
+                            HorizontalAlignment="Left"
+                            PointerPressed="SelectedImage_PointerPressed"
+                            PointerMoved="SelectedImage_PointerMoved"/>
+
+                        <StackPanel Grid.Column="1" Margin="24,0,0,0" VerticalAlignment="Top">
+                            <TextBlock Text="✓ Image loaded" FontSize="16" FontWeight="SemiBold" Foreground="Green"/>
+                            <TextBlock x:Name="ImageFileName" Margin="0,4,0,0" Foreground="{ThemeResource TextFillColorSecondaryBrush}"/>
+                            <TextBlock Text="Click anywhere on the image to pick a color manually" Margin="0,12,0,0"/>
+                            <TextBlock x:Name="PickedColorPreview" Margin="0,8,0,0" Visibility="Collapsed"/>
+                        </StackPanel>
+                    </Grid>
+                </StackPanel>
+
+                <!-- Step 2: Extract Colors -->
+                <StackPanel x:Name="Step2_Extract" Visibility="Collapsed" Spacing="16">
+                    <TextBlock Text="Step 2: Extract Colors" FontSize="20" FontWeight="SemiBold"/>
+                    
+                    <StackPanel 
+                        Background="{ThemeResource CardBackgroundFillColorDefaultBrush}" 
+                        Padding="24" 
+                        CornerRadius="8"
+                        Spacing="16">
+                        
+                        <TextBlock Text="How many colors do you want to extract?"/>
+                        
+                        <StackPanel Orientation="Horizontal" Spacing="12">
+                            <RadioButton x:Name="Radio4" Content="4 colors" GroupName="ColorCount" IsChecked="True"/>
+                            <RadioButton x:Name="Radio6" Content="6 colors" GroupName="ColorCount"/>
+                            <RadioButton x:Name="Radio8" Content="8 colors" GroupName="ColorCount"/>
+                            <RadioButton x:Name="Radio10" Content="10 colors" GroupName="ColorCount"/>
+                            <RadioButton x:Name="Radio16" Content="16 colors" GroupName="ColorCount"/>
+                        </StackPanel>
+
+                        <Button 
+                            x:Name="ExtractColorsButton"
+                            Content="Extract Dominant Colors" 
+                            Click="ExtractColorsButton_Click"
+                            Style="{StaticResource AccentButtonStyle}"/>
+
+                        <ProgressRing 
+                            x:Name="ExtractionProgress"
+                            IsActive="False"
+                            Visibility="Collapsed"/>
+                    </StackPanel>
+                </StackPanel>
+
+                <!-- Step 3: Preview & Edit Colors -->
+                <StackPanel x:Name="Step3_Preview" Visibility="Collapsed" Spacing="16">
+                    <Grid>
+                        <TextBlock Text="Step 3: Review &amp; Edit Colors" FontSize="20" FontWeight="SemiBold"/>
+                        <StackPanel Orientation="Horizontal" HorizontalAlignment="Right" Spacing="8">
+                            <Button Content="Add Color Manually" Click="AddColorManually_Click"/>
+                        </StackPanel>
+                    </Grid>
+
+                    <ItemsControl x:Name="ExtractedColorsList">
+                        <ItemsControl.ItemTemplate>
+                            <DataTemplate>
+                                <Grid 
+                                    Margin="0,0,0,12" 
+                                    Padding="16" 
+                                    Background="{ThemeResource CardBackgroundFillColorDefaultBrush}" 
+                                    CornerRadius="8">
+                                    <Grid.ColumnDefinitions>
+                                        <ColumnDefinition Width="100"/>
+                                        <ColumnDefinition Width="*"/>
+                                        <ColumnDefinition Width="Auto"/>
+                                    </Grid.ColumnDefinitions>
+
+                                    <!-- Color Swatch -->
+                                    <Border 
+                                        Grid.Column="0"
+                                        Width="80" 
+                                        Height="80" 
+                                        CornerRadius="8">
+                                        <Border.Background>
+                                            <SolidColorBrush Color="{Binding WindowsColor}"/>
+                                        </Border.Background>
+                                    </Border>
+
+                                    <!-- Color Info -->
+                                    <StackPanel Grid.Column="1" Margin="20,0,0,0" VerticalAlignment="Center" Spacing="8">
+                                        <TextBlock Text="{Binding HexColor}" FontWeight="SemiBold" FontSize="18"/>
+                                        <TextBlock Foreground="{ThemeResource TextFillColorSecondaryBrush}">
+                                            <Run Text="RGB("/>
+                                            <Run Text="{Binding R}"/><Run Text=", "/>
+                                            <Run Text="{Binding G}"/><Run Text=", "/>
+                                            <Run Text="{Binding B}"/><Run Text=")"/>
+                                        </TextBlock>
+                                        <TextBox 
+                                            Text="{Binding Description, Mode=TwoWay}" 
+                                            PlaceholderText="Add description (e.g., 'Primary button', 'Nav color')"
+                                            Width="400"
+                                            HorizontalAlignment="Left"/>
+                                    </StackPanel>
+
+                                    <!-- Remove Button -->
+                                    <Button 
+                                        Grid.Column="2"
+                                        Content="Remove"
+                                        Click="RemoveColor_Click"
+                                        Tag="{Binding}"/>
+                                </Grid>
+                            </DataTemplate>
+                        </ItemsControl.ItemTemplate>
+                    </ItemsControl>
+                </StackPanel>
+
+                <!-- Step 4: Save Palette -->
+                <StackPanel x:Name="Step4_Save" Visibility="Collapsed" Spacing="16">
+                    <TextBlock Text="Step 4: Save Palette" FontSize="20" FontWeight="SemiBold"/>
+                    
+                    <StackPanel 
+                        Background="{ThemeResource CardBackgroundFillColorDefaultBrush}" 
+                        Padding="24" 
+                        CornerRadius="8"
+                        Spacing="16">
+                        
+                        <TextBox 
+                            x:Name="PaletteNameBox"
+                            Header="Palette Name"
+                            PlaceholderText="e.g., 'Homepage Colors', 'Brand Palette'"
+                            MaxWidth="400"
+                            HorizontalAlignment="Left"/>
+
+                        <StackPanel Orientation="Horizontal" Spacing="12">
+                            <Button 
+                                x:Name="SavePaletteButton"
+                                Content="💾 Save Palette" 
+                                Click="SavePaletteButton_Click"
+                                Style="{StaticResource AccentButtonStyle}"/>
+                            <Button 
+                                Content="Cancel"
+                                Click="BackButton_Click"/>
+                        </StackPanel>
+
+                        <ProgressRing 
+                            x:Name="SavingProgress"
+                            IsActive="False"
+                            Visibility="Collapsed"/>
+                    </StackPanel>
+                </StackPanel>
+
+            </StackPanel>
+        </ScrollViewer>
     </Grid>
 </Page>

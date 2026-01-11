@@ -4,18 +4,27 @@ using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 
-namespace colors.Config
+namespace colors.Config;
+
+internal class FirebaseConfig
 {
-    internal class FirebaseConfig
-    {
-        // Replace these with YOUR Firebase configuration values
-        public const string DatabaseUrl = "https://colors-001-default-rtdb.europe-west1.firebasedatabase.app";
-        public const string StorageBucket = "colors-001.firebasestorage.app";
-        public const string ApiKey = "AIzaSyDofhypXXwZLrCWKeu7GT43E54qpl1R_Ac"; // Your API key
+    // Replace these with YOUR Firebase configuration values
+    public static string DatabaseUrl => 
+        !string.IsNullOrEmpty(Environment.GetEnvironmentVariable("FIREBASE_DATABASE_URL")) 
+            ? Environment.GetEnvironmentVariable("FIREBASE_DATABASE_URL")! 
+            : Secrets.DatabaseUrl ?? string.Empty;
 
-        // For now, we'll use a simple user ID
-        // Later we can implement proper authentication
-        public const string UserId = "user_001"; // Temporary for testing
+    public static string StorageBucket => 
+        !string.IsNullOrEmpty(Environment.GetEnvironmentVariable("FIREBASE_STORAGE_BUCKET")) 
+            ? Environment.GetEnvironmentVariable("FIREBASE_STORAGE_BUCKET")! 
+            : Secrets.StorageBucket ?? string.Empty;
 
-    }
+    public static string ApiKey => 
+        !string.IsNullOrEmpty(Environment.GetEnvironmentVariable("FIREBASE_API_KEY")) 
+            ? Environment.GetEnvironmentVariable("FIREBASE_API_KEY")! 
+            : Secrets.ApiKey ?? string.Empty;
+
+    // For now, we'll use a simple user ID
+    // Later we can implement proper authentication
+    public const string UserId = "user_001"; // Temporary for testing
 }

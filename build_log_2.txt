@@ -1,0 +1,13 @@
+  Determining projects to restore...
+  All projects are up-to-date for restore.
+C:\Users\eliud\MEGA\Programming\06-WindowsApp\Project 001\colors\colors\Services\FirebaseService.cs(398,26): error CS1061: 'FirebaseStorage' does not contain a definition for 'Dispose' and no accessible extension method 'Dispose' accepting a first argument of type 'FirebaseStorage' could be found (are you missing a using directive or an assembly reference?) [C:\Users\eliud\MEGA\Programming\06-WindowsApp\Project 001\colors\colors\colors.csproj]
+C:\Users\eliud\.nuget\packages\microsoft.windowsappsdk.winui\1.8.251105000\buildTransitive\Microsoft.UI.Xaml.Markup.Compiler.interop.targets(845,9): error MSB3073: The command ""C:\Users\eliud\.nuget\packages\microsoft.windowsappsdk.winui\1.8.251105000\buildTransitive\..\tools\net6.0\..\net472\XamlCompiler.exe" "obj\ARM64\Debug\net8.0-windows10.0.19041.0\win-arm64\\input.json" "obj\ARM64\Debug\net8.0-windows10.0.19041.0\win-arm64\\output.json"" exited with code 1. [C:\Users\eliud\MEGA\Programming\06-WindowsApp\Project 001\colors\colors\colors.csproj]
+
+Build FAILED.
+
+C:\Users\eliud\MEGA\Programming\06-WindowsApp\Project 001\colors\colors\Services\FirebaseService.cs(398,26): error CS1061: 'FirebaseStorage' does not contain a definition for 'Dispose' and no accessible extension method 'Dispose' accepting a first argument of type 'FirebaseStorage' could be found (are you missing a using directive or an assembly reference?) [C:\Users\eliud\MEGA\Programming\06-WindowsApp\Project 001\colors\colors\colors.csproj]
+C:\Users\eliud\.nuget\packages\microsoft.windowsappsdk.winui\1.8.251105000\buildTransitive\Microsoft.UI.Xaml.Markup.Compiler.interop.targets(845,9): error MSB3073: The command ""C:\Users\eliud\.nuget\packages\microsoft.windowsappsdk.winui\1.8.251105000\buildTransitive\..\tools\net6.0\..\net472\XamlCompiler.exe" "obj\ARM64\Debug\net8.0-windows10.0.19041.0\win-arm64\\input.json" "obj\ARM64\Debug\net8.0-windows10.0.19041.0\win-arm64\\output.json"" exited with code 1. [C:\Users\eliud\MEGA\Programming\06-WindowsApp\Project 001\colors\colors\colors.csproj]
+    0 Warning(s)
+    2 Error(s)
+
+Time Elapsed 00:00:08.51

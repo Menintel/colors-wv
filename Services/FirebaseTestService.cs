@@ -4,34 +4,33 @@ using colors.Config;
 using Firebase.Database;
 using Firebase.Database.Query;
 
-namespace colors.Services
+namespace colors.Services;
+
+public class FirebaseTestService
 {
-    public class FirebaseTestService
+    private readonly FirebaseClient _firebaseClient;
+
+    public FirebaseTestService()
     {
-        private readonly FirebaseClient _firebaseClient;
+        _firebaseClient = new FirebaseClient(FirebaseConfig.DatabaseUrl);
+    }
 
-        public FirebaseTestService()
+    public async Task<bool> TestConnectionAsync()
+    {
+        try
         {
-            _firebaseClient = new FirebaseClient(FirebaseConfig.DatabaseUrl);
+            // Attempt to write a test entry to the database
+            await _firebaseClient
+                .Child("connection")
+                .PostAsync(new { message = "Connection successful", timestamp = DateTime.UtcNow });
+
+            System.Console.WriteLine("✅ Firebase connection successful! wrote test data.");
+            return true;
         }
-
-        public async Task<bool> TestConnectionAsync()
+        catch (Exception ex)
         {
-            try
-            {
-                // Attempt to write a test entry to the database
-                await _firebaseClient
-                    .Child("connection")
-                    .PostAsync(new { message = "Connection successful", timestamp = DateTime.UtcNow });
-
-                System.Console.WriteLine("✅ Firebase connection successful! wrote test data.");
-                return true;
-            }
-            catch (Exception ex)
-            {
-                System.Console.WriteLine($"❌ Firebase connection failed: {ex.Message}");
-                return false;
-            }
+            System.Console.WriteLine($"❌ Firebase connection failed: {ex.Message}");
+            return false;
         }
     }
 }

@@ -4,7 +4,12 @@
       "commandName": "MsixPackage"
     },
     "colors (Unpackaged)": {
-      "commandName": "Project"
+      "commandName": "Project",
+      "environmentVariables": {
+        "FIREBASE_DATABASE_URL": "https://colors-001-default-rtdb.europe-west1.firebasedatabase.app",
+        "FIREBASE_STORAGE_BUCKET": "colors-001.firebasestorage.app",
+        "FIREBASE_API_KEY": "AIzaSyDofhypXXwZLrCWKeu7GT43E54qpl1R_Ac"
+      }
     }
   }
 }

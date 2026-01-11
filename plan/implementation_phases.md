@@ -1,5 +1,4 @@
-# 📅 Detailed Implementation Phases
-
+# 📅 Detailed Implementation Phases- [ ] **Action:** Simplify ItemTemplates to reduce visual tree complexity per item.
 This document expands the logic from `update.md` into 12 distinct, actionable phases.
 
 ## 🧹 Phase 1: Namespace & Import Cleanup
@@ -35,8 +34,7 @@ This document expands the logic from `update.md` into 12 distinct, actionable ph
 
 ## 🔄 Phase 6: Resource Lifecycle Management
 **Goal:** Prevent memory leaks.
-- [ ] **Action:** Implementation `IDisposable` in Services with active listeners (Firebase).
-- [ ] **Action:** Unsubscribe from events in `OnNavigatedFrom` in Pages.
+- [ ] **Action:** Implement `IDisposable` in Services with active listeners (Firebase).- [ ] **Action:** Unsubscribe from events in `OnNavigatedFrom` in Pages.
 - [ ] **Action:** Fix `CancellationToken` propagation in long-running tasks.
 
 ## 📜 Phase 7: UI Virtualization & Rendering
