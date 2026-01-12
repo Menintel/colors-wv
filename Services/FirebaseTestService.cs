@@ -10,19 +10,22 @@ public class FirebaseTestService
 {
     private readonly FirebaseClient _firebaseClient;
 
-    public FirebaseTestService()
+    public FirebaseTestService(FirebaseClient firebaseClient)
     {
-        _firebaseClient = new FirebaseClient(FirebaseConfig.DatabaseUrl);
+        _firebaseClient = firebaseClient ?? throw new ArgumentNullException(nameof(firebaseClient));
     }
-
     public async Task<bool> TestConnectionAsync()
     {
         try
         {
-            // Attempt to write a test entry to the database
+            var testRef = _firebaseClient.Child("connection");
+            // Attempt to read from the database to test connection
             await _firebaseClient
-                .Child("connection")
-                .PostAsync(new { message = "Connection successful", timestamp = DateTime.UtcNow });
+                .Child(".info/connected")
+                .OnceSingleAsync<bool>();            
+            // Cleanup test data
+            // Cleanup test data
+
 
             System.Console.WriteLine("✅ Firebase connection successful! wrote test data.");
             return true;

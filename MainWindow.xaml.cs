@@ -10,38 +10,43 @@ using Microsoft.UI.Xaml.Controls;
 namespace colors;
 
 /// <summary>
-/// An empty window that can be used on its own or navigated to within a Frame.
+/// The main application window containing a navigation frame for managing page views.
 /// </summary>
 public sealed partial class MainWindow : Window
 {
-
     public MainWindow()
     {
         this.InitializeComponent();
 
-        // Set window size
+        // Set fixed window size for floating UI
         var appWindow = this.AppWindow;
-        appWindow.Resize(new Windows.Graphics.SizeInt32(1200, 800));
+        appWindow.Resize(new Windows.Graphics.SizeInt32(400, 800));
 
         // Navigate to Projects page by default
         ContentFrame.Navigate(typeof(ProjectsPage));
-
-        ExtendsContentIntoTitleBar = true;
-        SetTitleBar(AppTitleBar);
     }
 
     private void ProjectsButton_Click(object sender, RoutedEventArgs e)
     {
-        ContentFrame.Navigate(typeof(ProjectsPage));
+        if (ContentFrame != null)
+        {
+            ContentFrame.Navigate(typeof(ProjectsPage));
+        }
     }
 
     private void ScreenPickerButton_Click(object sender, RoutedEventArgs e)
     {
-        ContentFrame.Navigate(typeof(ColorPickerPage));
+        if (ContentFrame != null)
+        {
+            ContentFrame.Navigate(typeof(ColorPickerPage));
+        }
     }
 
     private void ImagePaletteButton_Click(object sender, RoutedEventArgs e)
     {
-        ContentFrame.Navigate(typeof(ImagePalettePage));
+        if (ContentFrame != null)
+        {
+            ContentFrame.Navigate(typeof(ImagePalettePage));
+        }
     }
 }

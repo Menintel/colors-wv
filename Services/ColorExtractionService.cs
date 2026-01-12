@@ -7,17 +7,21 @@ using Windows.Graphics.Imaging;
 using Windows.Storage;
 using Windows.Storage.Streams;
 
-
 namespace colors.Services;
 
 public class ColorExtractionService
 {
-    public async Task<List<ColorItem>> ExtractDominantColorsAsync(StorageFile imageFile, int ColorCount)
+    public async Task<List<ColorItem>> ExtractDominantColorsAsync(StorageFile imageFile, int colorCount)
     {
+        if (imageFile == null)
+            throw new ArgumentNullException(nameof(imageFile));
+        if (colorCount <= 0)
+            throw new ArgumentOutOfRangeException(nameof(colorCount), "Color count must be positive.");
+        
         try
         {
             using (IRandomAccessStream stream = await imageFile.OpenAsync(FileAccessMode.Read))
-                {
+            {
                 BitmapDecoder decoder = await BitmapDecoder.CreateAsync(stream);
                 PixelDataProvider pixelData = await decoder.GetPixelDataAsync(
                     BitmapPixelFormat.Rgba8,
@@ -30,7 +34,7 @@ public class ColorExtractionService
                 byte[] pixels = pixelData.DetachPixelData();
 
                 // Use k-means clustering to find dominant colors
-                var dominantColors = ExtractColorsUsingKMeans(pixels, ColorCount);
+                var dominantColors = ExtractColorsUsingKMeans(pixels, colorCount);
 
                 return dominantColors.Select(c => new ColorItem(c.R, c.G, c.B)).ToList();
             }
@@ -44,9 +48,9 @@ public class ColorExtractionService
 
     private List<(int R, int G, int B)> ExtractColorsUsingKMeans(byte[] pixels, int k)
     {
-        // Sample pixels (every 10th pixel for performance)
+        // Sample pixels (every 40th pixel for performance, 4 bytes per pixel * 10 steps = 40)
         var samples = new List<(int R, int G, int B)>();
-        for (int i = 0; i < pixels.Length; i += 40) // RGBA = 4 bytes per pixel
+        for (int i = 0; i < pixels.Length; i += 40) 
         {
             if (i + 2 < pixels.Length)
             {
@@ -56,6 +60,9 @@ public class ColorExtractionService
 
         if (samples.Count == 0)
             return new List<(int R, int G, int B)>();
+
+        // Ensure k doesn't exceed available samples
+        k = Math.Min(k, samples.Count);
 
         // Initialize centroids randomly
         var random = new Random();
@@ -115,6 +122,9 @@ public class ColorExtractionService
 
     public async Task<ColorItem?> GetColorAtPositionAsync(StorageFile imageFile, int x, int y)
     {
+        if (imageFile == null)
+             throw new ArgumentNullException(nameof(imageFile));
+
         try
         {
             using (IRandomAccessStream stream = await imageFile.OpenAsync(FileAccessMode.Read))
@@ -135,7 +145,7 @@ public class ColorExtractionService
                 byte[] pixels = pixelData.DetachPixelData();
                 int pixelIndex = (y * (int)decoder.PixelWidth + x) * 4;
 
-                if (pixelIndex + 2 < pixels.Length)
+                if (pixelIndex >= 0 && pixelIndex + 2 < pixels.Length)
                 {
                     return new ColorItem(pixels[pixelIndex], pixels[pixelIndex + 1], pixels[pixelIndex + 2]);
                 }
@@ -148,5 +158,4 @@ public class ColorExtractionService
 
         return null;
     }
-
 }

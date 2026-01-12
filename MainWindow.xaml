@@ -12,71 +12,59 @@
     <Window.SystemBackdrop>
         <MicaBackdrop />
     </Window.SystemBackdrop>
-    <Grid>
+    <Grid Background="{StaticResource AppBackgroundBrush}">
         <Grid.RowDefinitions>
-            <RowDefinition Height="48"/>
-            <RowDefinition Height="*"/>
+            <RowDefinition Height="Auto"/> <!-- TitleBar -->
+            <RowDefinition Height="*"/>    <!-- Content -->
+            <RowDefinition Height="Auto"/> <!-- Bottom Nav -->
         </Grid.RowDefinitions>
 
-        <!-- Title Bar -->
-
-        <Grid x:Name="AppTitleBar" Grid.Row="0" Background="{ThemeResource  CardBackgroundFillColorDefaultBrush}" >
+        <!-- Custom Title Bar -->
+        <Grid x:Name="AppTitleBar" Grid.Row="0" Height="40" Background="Transparent">
             <Grid.ColumnDefinitions>
-                <ColumnDefinition Width="*"/>
                 <ColumnDefinition Width="Auto"/>
-                <ColumnDefinition Width="188"/> <!-- Space for Caption Buttons -->
+                <ColumnDefinition Width="*"/>
             </Grid.ColumnDefinitions>
-
-            <StackPanel Orientation="Horizontal" Margin="16,0" Spacing="8">
-                <FontIcon Glyph="&#xE790;"/>
-                <TextBlock
-                Text="Color Picker"
-                VerticalAlignment="Center"
-                FontSize="16"
-                FontWeight="SemiBold"/>
-            </StackPanel>
-
-            <!-- Navigation Buttons -->
-            <StackPanel
-                Grid.Column="1"
-                Orientation="Horizontal"
-                Spacing="8"
-                Margin="0,0,16,0">
-                
-                <Button
-                    x:Name="ProjectsButton"
-                    Click="ProjectsButton_Click"
-                    Style="{StaticResource AccentButtonStyle}"
-                    ToolTipService.ToolTip="Projects">
-                    <StackPanel Orientation="Horizontal" Spacing="8">
-                        <FontIcon Glyph="&#xE82D;"/>
-                        <TextBlock Text="Projects"/>
-                    </StackPanel>
-                </Button>
-                
-                <Button
-                    x:Name="ScreenPickerButton"
-                    Click="ScreenPickerButton_Click"
-                    ToolTipService.ToolTip="Screen Picker">
-                    <StackPanel Orientation="Horizontal" Spacing="8">
-                        <FontIcon Glyph="&#xEF3C;"/>
-                        <TextBlock Text="Pick"/>
-                    </StackPanel>
-                </Button>
-                
-                <Button
-                    x:Name="ImagePaletteButton"
-                    Click="ImagePaletteButton_Click"
-                    ToolTipService.ToolTip="New from Image">
-                    <StackPanel Orientation="Horizontal" Spacing="8">
-                        <FontIcon Glyph="&#xE8B9;"/>
-                        <TextBlock Text="Image"/>
-                    </StackPanel>
-                </Button>
+            <StackPanel Orientation="Horizontal" Margin="16,0" Spacing="8" VerticalAlignment="Center">
+                <FontIcon Glyph="&#xE790;" FontSize="14" Foreground="{StaticResource TextFillColorSecondaryBrush}"/>
+                <TextBlock Text="Colors" FontSize="14" Foreground="{StaticResource TextFillColorSecondaryBrush}"/>
             </StackPanel>
         </Grid>
 
         <!-- Content Frame -->
-        <Frame x:Name="ContentFrame" Grid.Row="1"/>
+        <Frame x:Name="ContentFrame" Grid.Row="1" Background="Transparent"/>
+
+        <!-- Bottom Navigation Bar -->
+        <Grid Grid.Row="2" Background="{StaticResource CardBackgroundBrush}" BorderBrush="{StaticResource CardStrokeColorDefaultBrush}" BorderThickness="0,1,0,0" Padding="0,8,0,8">
+            <Grid.ColumnDefinitions>
+                <ColumnDefinition Width="*"/>
+                <ColumnDefinition Width="*"/>
+                <ColumnDefinition Width="*"/>
+            </Grid.ColumnDefinitions>
+
+            <!-- Projects Tab -->
+            <Button x:Name="ProjectsButton" Grid.Column="0" Click="ProjectsButton_Click" Background="Transparent" BorderThickness="0" HorizontalAlignment="Stretch" HorizontalContentAlignment="Center">
+                <StackPanel Spacing="4">
+                    <FontIcon Glyph="&#xE82D;" FontSize="20" Foreground="{StaticResource TextFillColorPrimaryBrush}"/>
+                    <TextBlock Text="Projects" FontSize="10" Foreground="{StaticResource TextFillColorSecondaryBrush}" HorizontalAlignment="Center"/>
+                </StackPanel>
+            </Button>
+
+            <!-- Picker Tab -->
+            <Button x:Name="ScreenPickerButton" Grid.Column="1" Click="ScreenPickerButton_Click" Background="Transparent" BorderThickness="0" HorizontalAlignment="Stretch" HorizontalContentAlignment="Center">
+                <StackPanel Spacing="4">
+                    <FontIcon Glyph="&#xEF3C;" FontSize="20" Foreground="{StaticResource TextFillColorPrimaryBrush}"/>
+                    <TextBlock Text="Pick" FontSize="10" Foreground="{StaticResource TextFillColorSecondaryBrush}" HorizontalAlignment="Center"/>
+                </StackPanel>
+            </Button>
+
+            <!-- Image Tab -->
+            <Button x:Name="ImagePaletteButton" Grid.Column="2" Click="ImagePaletteButton_Click" Background="Transparent" BorderThickness="0" HorizontalAlignment="Stretch" HorizontalContentAlignment="Center">
+                <StackPanel Spacing="4">
+                    <FontIcon Glyph="&#xE8B9;" FontSize="20" Foreground="{StaticResource TextFillColorPrimaryBrush}"/>
+                    <TextBlock Text="Image" FontSize="10" Foreground="{StaticResource TextFillColorSecondaryBrush}" HorizontalAlignment="Center"/>
+                </StackPanel>
+            </Button>
+        </Grid>
     </Grid>
 </Window>

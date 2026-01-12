@@ -34,6 +34,7 @@ public sealed partial class ColorPickerPage : Page
     {
         this.InitializeComponent();
         this.Loaded += ColorPickerPage_Loaded;
+        this.Unloaded += ColorPickerPage_Unloaded;
 
         // Setup timer for live color picking
         _pickingTimer = new DispatcherTimer();
@@ -41,6 +42,12 @@ public sealed partial class ColorPickerPage : Page
         _pickingTimer.Tick += PickingTimer_Tick;
     }
 
+    private void ColorPickerPage_Unloaded(object sender, RoutedEventArgs e)
+    {
+        _pickingTimer?.Stop();
+        _pickingTimer.Tick -= PickingTimer_Tick;
+        this.Unloaded -= ColorPickerPage_Unloaded;
+    }
     private async void ColorPickerPage_Loaded(object sender, RoutedEventArgs e)
     {
         await LoadColorHistoryAsync();
@@ -109,10 +116,11 @@ public sealed partial class ColorPickerPage : Page
 
     private void StopPicking()
     {
-        _isPicking = false;
-        StartPickerButton.Content = "?? Start Picking";
-        InstructionText.Text = "Click the button above to start picking colors from your screen. Press ESC to stop.";
+        // Stop the timer
+        _pickingTimer.Stop();
 
+        // Unregister keyboard hook
+        this.KeyDown -= OnKeyDown;
         // Stop the timer
         _pickingTimer.Stop();
 
@@ -143,8 +151,13 @@ public sealed partial class ColorPickerPage : Page
             }
 
             // Get cursor position
-            var (x, y) = App.ScreenColorPickerService.GetCursorPosition();
-            PositionValue.Text = $"Position: ({x}, {y})";
+            // Get cursor position
+            var position = App.ScreenColorPickerService.GetCursorPosition();
+            if (position.HasValue)
+            {
+               var (x, y) = position.Value;
+               PositionValue.Text = $"Position: ({x}, {y})";
+            }
         }
         catch (Exception ex)
         {
@@ -313,7 +326,7 @@ public class ColorHistoryViewModel
 
     public ColorHistoryViewModel(ColorItem colorItem)
     {
-        _colorItem = colorItem;
+        _colorItem = colorItem ?? throw new ArgumentNullException(nameof(colorItem));
     }
 
     public string Id => _colorItem.Id;
@@ -324,4 +337,5 @@ public class ColorHistoryViewModel
     public string CreatedAt => _colorItem.CreatedAt.ToLocalTime().ToString("MMM dd, yyyy h:mm tt");
     public Windows.UI.Color WindowsColor => _colorItem.ToWindowsColor();
 }
+
 

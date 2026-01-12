@@ -8,20 +8,17 @@ using Microsoft.UI.Xaml.Media.Imaging;
 using colors.Models;
 using Windows.Storage;
 using Windows.Storage.Pickers;
+using Windows.ApplicationModel.DataTransfer;
 using Newtonsoft.Json;
-
-// To learn more about WinUI, the WinUI project structure,
-// and more about our project templates, see: http://aka.ms/winui-project-info.
+using System.Collections.ObjectModel;
 
 namespace colors.Views;
 
-/// <summary>
-/// An empty page that can be used on its own or navigated to within a Frame.
-/// </summary>
 public sealed partial class ProjectsPage : Page
 {
-    private List<Project> _projects = new List<Project>();
-    private ColorPalette? _selectedPalette = null;
+    private ObservableCollection<Project> _projects = new();
+    private ObservableCollection<PaletteViewModel> _currentProjectPalettes = new();
+    private Project? _selectedProject;
 
     public ProjectsPage()
     {
@@ -40,13 +37,12 @@ public sealed partial class ProjectsPage : Page
         {
             if (App.FirebaseService != null)
             {
-                _projects = await App.FirebaseService.GetProjectsAsync();
+                var projectsList = await App.FirebaseService.GetProjectsAsync();
+                _projects.Clear();
+                foreach(var p in projectsList) _projects.Add(p);
+                ProjectsList.ItemsSource = _projects;
+                EmptyProjectsState.Visibility = _projects.Count == 0 ? Visibility.Visible : Visibility.Collapsed;
             }
-            else
-            {
-                _projects = new List<Project>();
-            }
-            RenderProjects();
         }
         catch (Exception ex)
         {
@@ -54,83 +50,51 @@ public sealed partial class ProjectsPage : Page
         }
     }
 
-    private void RenderProjects()
+    private async void ProjectsList_SelectionChanged(object sender, SelectionChangedEventArgs e)
     {
-        ProjectsPanel.Children.Clear();
-
-        if (_projects.Count == 0)
+        if (ProjectsList.SelectedItem is Project project)
         {
-            var emptyText = new TextBlock
-            {
-                Text = "No projects yet.\nClick 'New Project' to get started!",
-                TextAlignment = TextAlignment.Center,
-                Foreground = new SolidColorBrush(Microsoft.UI.Colors.Gray),
-                Margin = new Thickness(0, 40, 0, 0)
-            };
-            ProjectsPanel.Children.Add(emptyText);
-            return;
+            _selectedProject = project;
+            
+            // Switch to details
+            ProjectsListContainer.Visibility = Visibility.Collapsed;
+            ProjectDetailsContainer.Visibility = Visibility.Visible;
+            ProjectNameTitle.Text = project.Name;
+
+            await LoadPalettesForProject(project);
+            
+            // Clear selection so we can re-select same item if needed later (though we switch view)
+            ProjectsList.SelectedItem = null;
         }
-
-        foreach (var project in _projects)
-        {
-            var expander = new Expander
-            {
-                Header = project.Name,
-                HorizontalAlignment = HorizontalAlignment.Stretch,
-                Margin = new Thickness(0, 0, 0, 4)
-            };
-
-            var palettesList = new StackPanel { Spacing = 4 };
-
-            // Add "New Palette" button
-            var newPaletteBtn = new Button
-            {
-                Content = "+ New Palette from Image",
-                HorizontalAlignment = HorizontalAlignment.Stretch,
-                Margin = new Thickness(0, 4, 0, 8)
-            };
-            newPaletteBtn.Click += async (s, e) => await CreateNewPalette(project);
-            palettesList.Children.Add(newPaletteBtn);
-
-            // Load palettes for this project
-            LoadPalettesForProject(project, palettesList);
-
-            expander.Content = palettesList;
-            ProjectsPanel.Children.Add(expander);
-        }
-
     }
 
-    private async void LoadPalettesForProject(Project project, StackPanel container)
+    private async System.Threading.Tasks.Task LoadPalettesForProject(Project project)
     {
-        var palettes = new List<ColorPalette>();
-        if (App.FirebaseService != null)
+        try
         {
-            palettes = await App.FirebaseService.GetPalettesAsync(project.Id);
-        }
-
-        foreach (var palette in palettes)
-        {
-            var btn = new Button
+            if (App.FirebaseService != null)
             {
-                Content = $"?? {palette.Name}",
-                HorizontalAlignment = HorizontalAlignment.Stretch,
-                HorizontalContentAlignment = HorizontalAlignment.Left
-            };
-            btn.Click += (s, e) => LoadPalette(palette);
-            container.Children.Add(btn);
+                var palettes = await App.FirebaseService.GetPalettesAsync(project.Id);
+                _currentProjectPalettes.Clear();
+                foreach (var pal in palettes)
+                {
+                    _currentProjectPalettes.Add(new PaletteViewModel(pal));
+                }
+                ProjectPalettesList.ItemsSource = _currentProjectPalettes;
+                EmptyPalettesState.Visibility = _currentProjectPalettes.Count == 0 ? Visibility.Visible : Visibility.Collapsed;
+            }
         }
-
-        if (palettes.Count == 0)
+        catch (Exception ex)
         {
-            var emptyText = new TextBlock
-            {
-                Text = "No palettes yet",
-                Foreground = new SolidColorBrush(Microsoft.UI.Colors.Gray),
-                Margin = new Thickness(8, 4, 0, 0)
-            };
-            container.Children.Add(emptyText);
+            System.Diagnostics.Debug.WriteLine($"Error loading palettes: {ex.Message}");
         }
+    }
+
+    private void BackToProjectsButton_Click(object sender, RoutedEventArgs e)
+    {
+        _selectedProject = null;
+        ProjectDetailsContainer.Visibility = Visibility.Collapsed;
+        ProjectsListContainer.Visibility = Visibility.Visible;
     }
 
     private async void NewProjectButton_Click(object sender, RoutedEventArgs e)
@@ -145,148 +109,74 @@ public sealed partial class ProjectsPage : Page
         };
 
         var stack = new StackPanel { Spacing = 8 };
-
         var nameBox = new TextBox { PlaceholderText = "Project name", Header = "Name" };
-        var descBox = new TextBox { PlaceholderText = "Optional description", Header = "Description", AcceptsReturn = true, Height = 80 };
-
+        var descBox = new TextBox { PlaceholderText = "Description", Header = "Description" };
         stack.Children.Add(nameBox);
         stack.Children.Add(descBox);
         dialog.Content = stack;
 
-        var result = await dialog.ShowAsync();
-
-        if (result == ContentDialogResult.Primary && !string.IsNullOrWhiteSpace(nameBox.Text))
+        if (await dialog.ShowAsync() == ContentDialogResult.Primary && !string.IsNullOrWhiteSpace(nameBox.Text))
         {
-            var project = new Project(nameBox.Text.Trim(), descBox.Text.Trim());
             if (App.FirebaseService != null)
             {
-                await App.FirebaseService.CreateProjectAsync(project);
+                var newProj = new Project(nameBox.Text.Trim(), descBox.Text.Trim());
+                await App.FirebaseService.CreateProjectAsync(newProj);
+                await LoadProjectsAsync();
             }
-            await LoadProjectsAsync();
         }
     }
 
-    private async System.Threading.Tasks.Task CreateNewPalette(Project project)
+    private void CreatePalette_Click(object sender, RoutedEventArgs e)
     {
-        // Navigate to Image Palette page with project context
-        var imagePalettePage = new ImagePalettePage(project);
-        Frame.Navigate(typeof(ImagePalettePage), project);
+        if (_selectedProject != null)
+        {
+            Frame.Navigate(typeof(ImagePalettePage), _selectedProject);
+        }
     }
 
-    private async void LoadPalette(ColorPalette palette)
+    private async void DeleteInProjectPalette_Click(object sender, RoutedEventArgs e)
     {
-        _selectedPalette = palette;
-
-        EmptyState.Visibility = Visibility.Collapsed;
-        PaletteHeader.Visibility = Visibility.Visible;
-
-        PaletteName.Text = palette.Name;
-        PaletteInfo.Text = $"{palette.Colors.Count} colors  Created {palette.CreatedAt:MMM dd, yyyy}";
-
-        // Load reference image if exists
-        if (!string.IsNullOrEmpty(palette.ReferenceImagePath))
+        if (sender is MenuFlyoutItem item && item.Tag is PaletteViewModel vm)
         {
-            try
+             var dialog = new ContentDialog
             {
-                var file = await StorageFile.GetFileFromPathAsync(palette.ReferenceImagePath);
-                var bitmap = new BitmapImage();
-                bitmap.DecodePixelWidth = 300;
-                using (var stream = await file.OpenAsync(FileAccessMode.Read))
+                XamlRoot = this.XamlRoot,
+                Title = "Delete Palette",
+                Content = $"Delete '{vm.Name}'?",
+                PrimaryButtonText = "Delete",
+                CloseButtonText = "Cancel",
+                DefaultButton = ContentDialogButton.Close
+            };
+
+            if (await dialog.ShowAsync() == ContentDialogResult.Primary)
+            {
+                if (App.FirebaseService != null)
                 {
-                    await bitmap.SetSourceAsync(stream);
+                    await App.FirebaseService.DeletePaletteAsync(vm.Id);
+                    _currentProjectPalettes.Remove(vm);
+                    if (_currentProjectPalettes.Count == 0) EmptyPalettesState.Visibility = Visibility.Visible;
                 }
-                ReferenceImage.Source = bitmap;
-                ReferenceImage.Visibility = Visibility.Visible;
-            }
-            catch
-            {
-                ReferenceImage.Visibility = Visibility.Collapsed;
             }
         }
-        else
-        {
-            ReferenceImage.Visibility = Visibility.Collapsed;
-        }
-
-        ColorsList.ItemsSource = palette.Colors;
     }
 
-    private async void ExportButton_Click(object sender, RoutedEventArgs e)
+    private void CopyInProjectJson_Click(object sender, RoutedEventArgs e)
     {
-        if (_selectedPalette == null) return;
-
-        try
+        if (sender is MenuFlyoutItem item && item.Tag is PaletteViewModel vm)
         {
-            var savePicker = new FileSavePicker();
-            savePicker.SuggestedStartLocation = PickerLocationId.DocumentsLibrary;
-            savePicker.FileTypeChoices.Add("JSON", new List<string>() { ".json" });
-            savePicker.SuggestedFileName = $"{_selectedPalette.Name}_palette";
-
-            var hwnd = WinRT.Interop.WindowNative.GetWindowHandle(App.MainWindow);
-            WinRT.Interop.InitializeWithWindow.Initialize(savePicker, hwnd);
-
-            StorageFile file = await savePicker.PickSaveFileAsync();
-
-            if (file != null)
-            {
-                var exportData = new
-                {
-                    name = _selectedPalette.Name,
-                    createdAt = _selectedPalette.CreatedAt,
-                    colors = _selectedPalette.Colors.Select(c => new
-                    {
-                        hex = c.HexColor,
-                        rgb = new { r = c.R, g = c.G, b = c.B },
-                        description = c.Description
-                    })
-                };
-
-                string json = JsonConvert.SerializeObject(exportData, Formatting.Indented);
-                await FileIO.WriteTextAsync(file, json);
-
-                var successDialog = new ContentDialog
-                {
-                    XamlRoot = this.XamlRoot,
-                    Title = "Success",
-                    Content = "Palette exported successfully!",
-                    CloseButtonText = "OK"
-                };
-                await successDialog.ShowAsync();
-            }
-        }
-        catch (Exception ex)
-        {
-            System.Diagnostics.Debug.WriteLine($"Error exporting: {ex.Message}");
+            var json = JsonConvert.SerializeObject(vm.SourcePalette, Formatting.Indented);
+            var dp = new DataPackage();
+            dp.SetText(json);
+            Clipboard.SetContent(dp);
         }
     }
+}
 
-    private async void DeletePaletteButton_Click(object sender, RoutedEventArgs e)
+public class StringToVisibilityConverter : Microsoft.UI.Xaml.Data.IValueConverter
+{
+    public object Convert(object value, Type targetType, object parameter, string language)
     {
-        if (_selectedPalette == null) return;
-
-        var dialog = new ContentDialog
-        {
-            XamlRoot = this.XamlRoot,
-            Title = "Delete Palette",
-            Content = $"Are you sure you want to delete '{_selectedPalette.Name}'?",
-            PrimaryButtonText = "Delete",
-            CloseButtonText = "Cancel",
-            DefaultButton = ContentDialogButton.Close
-        };
-
-        var result = await dialog.ShowAsync();
-
-        if (result == ContentDialogResult.Primary)
-        {
-            if (App.FirebaseService != null)
-            {
-                await App.FirebaseService.DeletePaletteAsync(_selectedPalette.Id);
-            }
-            _selectedPalette = null;
-            EmptyState.Visibility = Visibility.Visible;
-            PaletteHeader.Visibility = Visibility.Collapsed;
-            await LoadProjectsAsync();
-        }
+        return string.IsNullOrEmpty(value as string) ? Visibility.Collapsed : Visibility.Visible;
     }
-
+    public object ConvertBack(object value, Type targetType, object parameter, string language) => throw new NotImplementedException();
 }

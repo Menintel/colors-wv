@@ -7,7 +7,7 @@
     xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
     xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
     mc:Ignorable="d"
-    Background="{ThemeResource ApplicationPageBackgroundThemeBrush}">
+    Background="{StaticResource AppBackgroundBrush}">
 
     <Grid>
         <Grid.RowDefinitions>
@@ -16,45 +16,38 @@
         </Grid.RowDefinitions>
 
         <!-- Header -->
-        <Grid Grid.Row="0" Padding="24" Background="{ThemeResource CardBackgroundFillColorDefaultBrush}">
+        <Grid Grid.Row="0" Padding="16" Background="Transparent">
             <StackPanel>
-                <TextBlock Text="Screen Color Picker" FontSize="24" FontWeight="SemiBold"/>
-                <TextBlock Text="Pick colors from anywhere on your screen" Foreground="{ThemeResource TextFillColorSecondaryBrush}" Margin="0,4,0,0"/>
+                <TextBlock Text="Screen Color Picker" FontSize="20" FontWeight="SemiBold" Foreground="{StaticResource TextFillColorPrimaryBrush}"/>
+                <TextBlock Text="Pick colors from anywhere" Foreground="{StaticResource TextFillColorSecondaryBrush}" FontSize="12" Margin="0,2,0,0"/>
             </StackPanel>
         </Grid>
 
         <!-- Content -->
-        <Grid Grid.Row="1" Padding="24">
-            <Grid.ColumnDefinitions>
-                <ColumnDefinition Width="*" MaxWidth="400"/>
-                <ColumnDefinition Width="*"/>
-            </Grid.ColumnDefinitions>
-
-            <!-- Left: Picker Controls -->
-            <StackPanel Grid.Column="0" Spacing="24">
-               <!-- Live Color Preview -->
+        <ScrollViewer Grid.Row="1" Padding="16">
+            <StackPanel Spacing="16">
+                
+                <!-- Live Color Preview (Top) -->
                 <StackPanel 
-                    Background="{ThemeResource CardBackgroundFillColorDefaultBrush}" 
-                    Padding="24" 
-                    CornerRadius="8"
-                    Spacing="16">
+                    Background="{StaticResource CardBackgroundBrush}" 
+                    Padding="16" 
+                    CornerRadius="12"
+                    Spacing="12">
                     
-                    <TextBlock Text="Color Picker" FontSize="18" FontWeight="SemiBold"/>
-
                     <!-- Large Color Swatch -->
                     <Border 
                         x:Name="LiveColorSwatch"
-                        Height="150" 
+                        Height="100" 
                         CornerRadius="8"
                         Background="#808080"
-                        BorderBrush="{ThemeResource CardStrokeColorDefaultBrush}"
-                        BorderThickness="2"/>
-
+                        BorderBrush="{StaticResource CardStrokeColorDefaultBrush}"
+                        BorderThickness="1"/>
+                        
                     <!-- Color Values -->
-                    <StackPanel Spacing="8">
-                        <TextBlock x:Name="HexValue" Text="HEX: #808080" FontSize="16" FontWeight="SemiBold"/>
-                        <TextBlock x:Name="RgbValue" Text="RGB: (128, 128, 128)" Foreground="{ThemeResource TextFillColorSecondaryBrush}"/>
-                        <TextBlock x:Name="PositionValue" Text="Position: (0, 0)" Foreground="{ThemeResource TextFillColorSecondaryBrush}"/>
+                    <StackPanel Spacing="4">
+                        <TextBlock x:Name="HexValue" Text="HEX: #808080" FontSize="16" FontWeight="Bold" Foreground="{StaticResource TextFillColorPrimaryBrush}"/>
+                        <TextBlock x:Name="RgbValue" Text="RGB: (128, 128, 128)" Foreground="{StaticResource TextFillColorSecondaryBrush}"/>
+                        <TextBlock x:Name="PositionValue" Text="Position: (0, 0)" FontSize="10" Foreground="{StaticResource TextFillColorTertiaryBrush}"/>
                     </StackPanel>
 
                     <!-- Picker Button -->
@@ -62,51 +55,50 @@
                         x:Name="StartPickerButton"
                         Click="StartPickerButton_Click"
                         HorizontalAlignment="Stretch"
-                        Style="{StaticResource AccentButtonStyle}">
+                        Style="{StaticResource AccentButtonStyle}"
+                        CornerRadius="8"
+                        Height="40">
                         <StackPanel Orientation="Horizontal" Spacing="8">
-                            <FontIcon Glyph="&#xEF3C;"/>
+                            <FontIcon Glyph="&#xEF3C;" FontSize="16"/>
                             <TextBlock Text="Start Picking"/>
                         </StackPanel>
                     </Button>
-
-                    <TextBlock 
-                        x:Name="InstructionText"
-                        Text="Click the button above to start picking colors from your screen. Press ESC to stop."
-                        TextWrapping="Wrap"
-                        Foreground="{ThemeResource TextFillColorSecondaryBrush}"/>
-
+                    <TextBlock x:Name="InstructionText" Text="" FontSize="12" Foreground="{StaticResource TextFillColorSecondaryBrush}" TextWrapping="Wrap" HorizontalAlignment="Center" TextAlignment="Center"/>
                 </StackPanel> 
 
                 <!-- Quick Actions -->
                 <StackPanel 
-                    Background="{ThemeResource CardBackgroundFillColorDefaultBrush}" 
-                    Padding="24" 
-                    CornerRadius="8"
+                    Background="{StaticResource CardBackgroundBrush}" 
+                    Padding="16" 
+                    CornerRadius="12"
                     Spacing="12">
                     
-                    <TextBlock Text="Quick Actions" FontSize="18" FontWeight="SemiBold"/>
+                    <TextBlock Text="Actions" FontSize="14" FontWeight="SemiBold" Foreground="{StaticResource TextFillColorPrimaryBrush}"/>
                     
-                    <Button 
-                        x:Name="CopyHexButton"
-                        Click="CopyHexButton_Click"
-                        HorizontalAlignment="Stretch"
-                        IsEnabled="False">
-                        <StackPanel Orientation="Horizontal" Spacing="8">
-                            <FontIcon Glyph="&#xE8C8;"/>
+                    <Grid ColumnSpacing="8">
+                        <Grid.ColumnDefinitions>
+                            <ColumnDefinition Width="*"/>
+                            <ColumnDefinition Width="*"/>
+                        </Grid.ColumnDefinitions>
+                        
+                        <Button 
+                            x:Name="CopyHexButton"
+                            Click="CopyHexButton_Click"
+                            Grid.Column="0"
+                            HorizontalAlignment="Stretch"
+                            IsEnabled="False">
                             <TextBlock Text="Copy HEX"/>
-                        </StackPanel>
-                    </Button>
-                    
-                    <Button 
-                        x:Name="CopyRgbButton"
-                        Click="CopyRgbButton_Click"
-                        HorizontalAlignment="Stretch"
-                        IsEnabled="False">
-                        <StackPanel Orientation="Horizontal" Spacing="8">
-                            <FontIcon Glyph="&#xE8C8;"/>
+                        </Button>
+                        
+                        <Button 
+                            x:Name="CopyRgbButton"
+                            Click="CopyRgbButton_Click"
+                            Grid.Column="1"
+                            HorizontalAlignment="Stretch"
+                            IsEnabled="False">
                             <TextBlock Text="Copy RGB"/>
-                        </StackPanel>
-                    </Button>
+                        </Button>
+                    </Grid>
                     
                     <Button 
                         x:Name="SaveColorButton"
@@ -119,98 +111,80 @@
                         </StackPanel>
                     </Button>
                 </StackPanel>
-            </StackPanel>
 
-            <!-- Right: Color History -->
-            <StackPanel Grid.Column="1" Margin="24,0,0,0">
-                <Grid Margin="0,0,0,16">
-                    <TextBlock Text="Color History" FontSize="18" FontWeight="SemiBold"/>
-                    <StackPanel Orientation="Horizontal" HorizontalAlignment="Right" Spacing="8">
-                        <Button Content="Refresh" Click="RefreshHistory_Click" Style="{StaticResource SubtleButtonStyle}"/>
-                        <Button Content="Clear All" Click="ClearHistory_Click" Style="{StaticResource SubtleButtonStyle}"/>
-                    </StackPanel>
-                </Grid>
+                <!-- Color History -->
+                <StackPanel Spacing="8">
+                    <Grid>
+                        <TextBlock Text="History" FontSize="16" FontWeight="SemiBold" Foreground="{StaticResource TextFillColorPrimaryBrush}"/>
+                        <StackPanel Orientation="Horizontal" HorizontalAlignment="Right" Spacing="8">
+                            <Button Content="Clear" Click="ClearHistory_Click" FontSize="12" Padding="8,4" MinHeight="24"/>
+                        </StackPanel>
+                    </Grid>
 
-                <ListView x:Name="ColorHistoryList" MaxHeight="600" SelectionMode="None">
-                    <ListView.ItemTemplate>
-                        <DataTemplate>
-                            <Grid 
-                                Margin="0,0,0,12" 
-                                Padding="16" 
-                                Background="{ThemeResource CardBackgroundFillColorDefaultBrush}" 
-                                CornerRadius="8">
-                                <Grid.ColumnDefinitions>
-                                    <ColumnDefinition Width="80"/>
-                                    <ColumnDefinition Width="*"/>
-                                    <ColumnDefinition Width="Auto"/>
-                                </Grid.ColumnDefinitions>
-
-                                <!-- Color Swatch -->
-                                <Border 
-                                    Grid.Column="0"
-                                    Width="64" 
-                                    Height="64" 
+                    <ListView x:Name="ColorHistoryList" SelectionMode="None">
+                        <ListView.ItemTemplate>
+                            <DataTemplate>
+                                <Grid 
+                                    Margin="0,0,0,8" 
+                                    Padding="12" 
+                                    Background="{StaticResource CardBackgroundBrush}" 
                                     CornerRadius="8">
-                                    <Border.Background>
-                                        <SolidColorBrush Color="{Binding WindowsColor}"/>
-                                    </Border.Background>
-                                </Border>
+                                    <Grid.ColumnDefinitions>
+                                        <ColumnDefinition Width="Auto"/>
+                                        <ColumnDefinition Width="*"/>
+                                        <ColumnDefinition Width="Auto"/>
+                                    </Grid.ColumnDefinitions>
 
-                                <!-- Color Info -->
-                                <StackPanel Grid.Column="1" Margin="16,0,0,0" VerticalAlignment="Center" Spacing="4">
-                                    <TextBlock Text="{Binding HexColor}" FontWeight="SemiBold" FontSize="16"/>
-                                    <TextBlock Foreground="{ThemeResource TextFillColorSecondaryBrush}">
-                                        <Run Text="RGB("/>
-                                        <Run Text="{Binding R}"/><Run Text=", "/>
-                                        <Run Text="{Binding G}"/><Run Text=", "/>
-                                        <Run Text="{Binding B}"/><Run Text=")"/>
-                                    </TextBlock>
-                                    <TextBlock Text="{Binding CreatedAt}" Foreground="{ThemeResource TextFillColorTertiaryBrush}" FontSize="12"/>
-                                </StackPanel>
+                                    <!-- Swatch -->
+                                    <Border 
+                                        Grid.Column="0"
+                                        Width="40" 
+                                        Height="40" 
+                                        CornerRadius="6"
+                                        Margin="0,0,12,0">
+                                        <Border.Background>
+                                            <SolidColorBrush Color="{Binding WindowsColor}"/>
+                                        </Border.Background>
+                                    </Border>
 
-                                <!-- Actions -->
-                                <StackPanel Grid.Column="2" VerticalAlignment="Center" Spacing="4">
-                                    <Button 
-                                        Content="Copy" 
-                                        Click="CopyHistoryColor_Click"
-                                        Tag="{Binding}"
-                                        Width="80"/>
-                                    <Button 
-                                        Content="Delete" 
-                                        Click="DeleteHistoryColor_Click"
-                                        Tag="{Binding}"
-                                        Width="80"/>
-                                </StackPanel>
-                            </Grid>
-                        </DataTemplate>
-                    </ListView.ItemTemplate>
-                    <ListView.ItemContainerStyle>
-                        <Style TargetType="ListViewItem">
-                            <Setter Property="HorizontalContentAlignment" Value="Stretch"/>
-                            <Setter Property="Padding" Value="0"/>
-                            <Setter Property="Margin" Value="0,0,0,4"/>
-                        </Style>
-                    </ListView.ItemContainerStyle>
-                </ListView>
+                                    <!-- Info -->
+                                    <StackPanel Grid.Column="1" VerticalAlignment="Center" Spacing="2">
+                                        <TextBlock Text="{Binding HexColor}" FontWeight="SemiBold" FontSize="14" Foreground="{StaticResource TextFillColorPrimaryBrush}"/>
+                                        <TextBlock Text="{Binding CreatedAt}" Foreground="{StaticResource TextFillColorTertiaryBrush}" FontSize="10"/>
+                                    </StackPanel>
 
-                <!-- Empty State -->
-                <StackPanel 
-                    x:Name="EmptyHistoryState"
-                    VerticalAlignment="Center" 
-                    HorizontalAlignment="Center"
-                    Margin="0,100,0,0">
-                    <TextBlock 
-                        Text="No colors picked yet" 
-                        FontSize="16" 
-                        Foreground="{ThemeResource TextFillColorSecondaryBrush}"
-                        TextAlignment="Center"/>
-                    <TextBlock 
-                        Text="Start picking colors to build your history" 
-                        Foreground="{ThemeResource TextFillColorTertiaryBrush}"
-                        TextAlignment="Center"
-                        Margin="0,4,0,0"/>
+                                    <!-- Actions -->
+                                    <StackPanel Grid.Column="2" Orientation="Horizontal" Spacing="4">
+                                        <Button Click="CopyHistoryColor_Click" Tag="{Binding}" Padding="6" Background="Transparent" BorderThickness="0">
+                                            <FontIcon Glyph="&#xE8C8;" FontSize="14"/>
+                                        </Button>
+                                    </StackPanel>
+                                </Grid>
+                            </DataTemplate>
+                        </ListView.ItemTemplate>
+                        <ListView.ItemContainerStyle>
+                            <Style TargetType="ListViewItem">
+                                <Setter Property="HorizontalContentAlignment" Value="Stretch"/>
+                                <Setter Property="Padding" Value="0"/>
+                                <Setter Property="Margin" Value="0,0,0,4"/>
+                            </Style>
+                        </ListView.ItemContainerStyle>
+                    </ListView>
+
+                    <!-- Empty State -->
+                    <StackPanel 
+                        x:Name="EmptyHistoryState"
+                        Margin="0,24,0,0"
+                        HorizontalAlignment="Center">
+                        <TextBlock 
+                            Text="No recent colors" 
+                            FontSize="14" 
+                            Foreground="{StaticResource TextFillColorSecondaryBrush}"
+                            TextAlignment="Center"/>
+                    </StackPanel>
                 </StackPanel>
+
             </StackPanel>
-        </Grid>
+        </ScrollViewer>
     </Grid>
 </Page>

@@ -16,15 +16,19 @@ public class ColorItem
 
     public ColorItem(int r, int g, int b, string description = "")
     {
+        if (r < 0 || r > 255) throw new ArgumentOutOfRangeException(nameof(r), "Value must be between 0 and 255.");
+        if (g < 0 || g > 255) throw new ArgumentOutOfRangeException(nameof(g), "Value must be between 0 and 255.");
+        if (b < 0 || b > 255) throw new ArgumentOutOfRangeException(nameof(b), "Value must be between 0 and 255.");
         R = r;
         G = g;
         B = b;
         HexColor = $"#{r:X2}{g:X2}{b:X2}";
-        Description = description;
     }
 
     public static ColorItem? FromHex(string hex, string description = "")
     {
+        if (string.IsNullOrEmpty(hex)) return null;
+
         hex = hex.Replace("#", "");
         if (hex.Length != 6) return null;
 
@@ -33,7 +37,7 @@ public class ColorItem
             int r = Convert.ToInt32(hex.Substring(0, 2), 16);
             int g = Convert.ToInt32(hex.Substring(2, 2), 16);
             int b = Convert.ToInt32(hex.Substring(4, 2), 16);
-            return new ColorItem(r, g, b, description);
+        return new ColorItem(r, g, b, description);
         }
         catch
         {
@@ -45,4 +49,6 @@ public class ColorItem
     {
         return Windows.UI.Color.FromArgb(255, (byte)R, (byte)G, (byte)B);
     }
+
+
 }

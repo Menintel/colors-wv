@@ -280,7 +280,6 @@ public class FirebaseService : IDisposable
     #endregion
 
     #region Helper Methods
-
     private async Task<Project?> GetProjectByIdAsync(string projectId)
     {
         try
@@ -294,8 +293,9 @@ public class FirebaseService : IDisposable
 
             return project;
         }
-        catch
+        catch (Exception ex)
         {
+            System.Diagnostics.Debug.WriteLine($"Error getting project by ID: {ex.Message}");
             return null;
         }
     }

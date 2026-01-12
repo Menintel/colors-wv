@@ -18,6 +18,8 @@ using Windows.Storage.Streams;
 using System.Collections.ObjectModel;
 using Microsoft.UI.Xaml.Media.Imaging;
 using colors.Models;
+using System.ComponentModel;
+using System.Runtime.CompilerServices;
 
 // To learn more about WinUI, the WinUI project structure,
 // and more about our project templates, see: http://aka.ms/winui-project-info.
@@ -32,6 +34,7 @@ public sealed partial class ImagePalettePage : Page
     private Project? _project;
     private StorageFile? _selectedImageFile;
     private ObservableCollection<ColorItemViewModel> _extractedColors = new ObservableCollection<ColorItemViewModel>();
+    private DispatcherTimer? _feedbackTimer;
 
     public ImagePalettePage()
     {
@@ -42,8 +45,8 @@ public sealed partial class ImagePalettePage : Page
     {
         this.InitializeComponent();
         _project = project;
+        ProjectNameText.Text = $"Project: {_project.Name}";
     }
-
     protected override void OnNavigatedTo(Microsoft.UI.Xaml.Navigation.NavigationEventArgs e)
     {
         base.OnNavigatedTo(e);
@@ -88,21 +91,22 @@ public sealed partial class ImagePalettePage : Page
         }
     }
 
-    private async System.Threading.Tasks.Task LoadImagePreview(StorageFile file)
+    private async System.Threading.Tasks.Task<bool> LoadImagePreview(StorageFile file)
     {
         try
         {
             var bitmap = new BitmapImage();
-            bitmap.DecodePixelWidth = 1000;
             using (IRandomAccessStream stream = await file.OpenAsync(FileAccessMode.Read))
             {
                 await bitmap.SetSourceAsync(stream);
             }
             SelectedImage.Source = bitmap;
+            return true;
         }
         catch (Exception ex)
         {
             System.Diagnostics.Debug.WriteLine($"Error loading image preview: {ex.Message}");
+            return false;
         }
     }
 
@@ -118,16 +122,18 @@ public sealed partial class ImagePalettePage : Page
             ExtractionProgress.Visibility = Visibility.Visible;
 
             // Get selected count
+            // Get selected count
             int colorCount = 4;
             if (Radio6.IsChecked == true) colorCount = 6;
             else if (Radio8.IsChecked == true) colorCount = 8;
-            else if (Radio10.IsChecked == true) colorCount = 10;
-            else if (Radio16.IsChecked == true) colorCount = 16;
 
-            // Extract colors
+
             if (App.ColorExtractionService == null)
             {
                 await ShowErrorDialog("Color service is not initialized.");
+                ExtractColorsButton.IsEnabled = true;
+                ExtractionProgress.IsActive = false;
+                ExtractionProgress.Visibility = Visibility.Collapsed;
                 return;
             }
             var colors = await App.ColorExtractionService.ExtractDominantColorsAsync(_selectedImageFile, colorCount);
@@ -172,10 +178,11 @@ public sealed partial class ImagePalettePage : Page
         {
             var point = e.GetCurrentPoint(SelectedImage);
             var position = point.Position;
+            if (SelectedImage.ActualWidth == 0 || SelectedImage.ActualHeight == 0)
+                return;
 
-            // Get image actual dimensions
-            var imageSource = SelectedImage.Source as BitmapImage;
-            if (imageSource == null) return;
+            if (SelectedImage.Source is not BitmapImage imageSource)
+                return;
 
             // Calculate actual pixel position
             double scaleX = imageSource.PixelWidth / SelectedImage.ActualWidth;
@@ -184,6 +191,7 @@ public sealed partial class ImagePalettePage : Page
             int x = (int)(position.X * scaleX);
             int y = (int)(position.Y * scaleY);
 
+
             // Get color at position
             if (App.ColorExtractionService == null) return;
             var color = await App.ColorExtractionService.GetColorAtPositionAsync(_selectedImageFile, x, y);
@@ -191,22 +199,16 @@ public sealed partial class ImagePalettePage : Page
             if (color != null)
             {
                 // Add to extracted colors if not already there
-                if (!_extractedColors.Any(c => c.HexColor == color.HexColor))
-                {
-                    _extractedColors.Add(new ColorItemViewModel(color));
-                    
-                    // Show feedback
-                    PickedColorPreview.Text = $"✓ Picked color: {color.HexColor}";
-                    PickedColorPreview.Visibility = Visibility.Visible;
-
                     // Auto-hide feedback after 2 seconds
-                    var timer = new DispatcherTimer { Interval = TimeSpan.FromSeconds(2) };
-                    timer.Tick += (s, args) =>
+                    _feedbackTimer?.Stop();
+                    _feedbackTimer = new DispatcherTimer { Interval = TimeSpan.FromSeconds(2) };
+                    _feedbackTimer.Tick += (s, args) =>
                     {
                         PickedColorPreview.Visibility = Visibility.Collapsed;
-                        timer.Stop();
+                        _feedbackTimer?.Stop();
                     };
-                    timer.Start();
+                    _feedbackTimer.Start();
+
 
                     // Show preview steps if hidden
                     if (Step3_Preview.Visibility == Visibility.Collapsed)
@@ -216,7 +218,7 @@ public sealed partial class ImagePalettePage : Page
                         ExtractedColorsList.ItemsSource = _extractedColors;
                     }
                 }
-            }
+
         }
         catch (Exception ex)
         {
@@ -390,39 +392,80 @@ public sealed partial class ImagePalettePage : Page
     }
 }
 
-// ViewModel for color items to support data binding
-public class ColorItemViewModel(ColorItem colorItem)
+public class ColorItemViewModel(ColorItem colorItem) : INotifyPropertyChanged
 {
     private ColorItem _colorItem = colorItem;
+    
+    public event PropertyChangedEventHandler? PropertyChanged;
+    
+    private void OnPropertyChanged([CallerMemberName] string? propertyName = null)
+    {
+        PropertyChanged?.Invoke(this, new PropertyChangedEventArgs(propertyName));
+    }
 
     public string HexColor 
     { 
         get => _colorItem.HexColor; 
-        set => _colorItem.HexColor = value; 
+        set
+        {
+            if (_colorItem.HexColor != value)
+            {
+                _colorItem.HexColor = value;
+                OnPropertyChanged();
+            }
+        }
     }
 
     public int R 
     { 
         get => _colorItem.R; 
-        set => _colorItem.R = value; 
+        set
+        {
+            if (_colorItem.R != value)
+            {
+                _colorItem.R = value;
+                OnPropertyChanged();
+            }
+        }
     }
 
     public int G 
     { 
         get => _colorItem.G; 
-        set => _colorItem.G = value; 
+        set
+        {
+            if (_colorItem.G != value)
+            {
+                _colorItem.G = value;
+                OnPropertyChanged();
+            }
+        }
     }
 
     public int B 
     { 
         get => _colorItem.B; 
-        set => _colorItem.B = value; 
+        set
+        {
+            if (_colorItem.B != value)
+            {
+                _colorItem.B = value;
+                OnPropertyChanged();
+            }
+        }
     }
 
     public string Description 
     { 
         get => _colorItem.Description; 
-        set => _colorItem.Description = value; 
+        set
+        {
+            if (_colorItem.Description != value)
+            {
+                _colorItem.Description = value;
+                OnPropertyChanged();
+            }
+        }
     }
 
     public Windows.UI.Color WindowsColor => _colorItem.ToWindowsColor();

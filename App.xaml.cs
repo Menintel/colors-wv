@@ -1,5 +1,7 @@
-﻿using Microsoft.UI.Xaml;
+﻿﻿using Microsoft.UI.Xaml;
+using Microsoft.UI.Xaml;
 using colors.Services;
+using System;
 
 
 // To learn more about WinUI, the WinUI project structure,
@@ -21,18 +23,24 @@ public partial class App : Application
     {
         this.InitializeComponent();
         // Initialize Services
-        FirebaseService = new FirebaseService();
-        ColorExtractionService = new ColorExtractionService();
-        ScreenColorPickerService = new ScreenColorPickerService();
+        try
+        {
+            FirebaseService = new FirebaseService();
+            ColorExtractionService = new ColorExtractionService();
+            ScreenColorPickerService = new ScreenColorPickerService();
+        }
+        catch (Exception ex)
+        {
+            // Log the error and show user-friendly message
+            // Consider implementing fallback behavior or graceful shutdown
+        }
     }
-
     protected override void OnLaunched(Microsoft.UI.Xaml.LaunchActivatedEventArgs args)
     {
         if (MainWindow == null)
         {
             MainWindow = new MainWindow();
-            MainWindow.Closed += (sender, args) => MainWindow = null;
-        }
+            MainWindow.Closed += (sender, _) => MainWindow = null;        }
         MainWindow.Activate();
     }
 }

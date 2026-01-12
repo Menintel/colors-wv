@@ -1,5 +1,4 @@
-﻿
-using colors.Models;
+﻿using colors.Models;
 using System;
 using System.Runtime.InteropServices;
 
@@ -35,8 +34,13 @@ public class ScreenColorPickerService
                 return null;
 
             IntPtr hdc = GetDC(IntPtr.Zero);
+            if (hdc == IntPtr.Zero)
+                return null;
+
             uint pixel = GetPixel(hdc, point.X, point.Y);
             ReleaseDC(IntPtr.Zero, hdc);
+            if (pixel == 0xFFFFFFFF)
+                return null;
 
             int r = (int)(pixel & 0x000000FF);
             int g = (int)((pixel & 0x0000FF00) >> 8);
@@ -44,17 +48,17 @@ public class ScreenColorPickerService
 
             return new ColorItem(r, g, b);
         }
-        catch (Exception ex)
+        catch
         {
-            System.Diagnostics.Debug.WriteLine($"Error getting color at cursor: {ex.Message}");
             return null;
         }
     }
 
-    public (int X, int Y) GetCursorPosition()
+    public (int X, int Y)? GetCursorPosition()
     {
         POINT point;
-        GetCursorPos(out point);
+        if (!GetCursorPos(out point))
+            return null;
         return (point.X, point.Y);
     }
 }
